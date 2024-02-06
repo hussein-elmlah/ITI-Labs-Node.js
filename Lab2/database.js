@@ -2,14 +2,41 @@
 const fs = require("fs");
 const path = require("path");
 
-const todosDataPath = path.join(__dirname, "databases", "todosDB", "todos.json");
+const todosDataPath = path.join(
+  __dirname,
+  "databases",
+  "todosDB",
+  "todos.json"
+);
+
+// Get last id
+const todosMetadataPath = path.join(
+  __dirname,
+  "databases",
+  "todosDB",
+  "todos.metadata.json"
+);
+let todosMetadata = JSON.parse(fs.readFileSync(todosMetadataPath, "utf8"));
+let nextTodoId = todosMetadata[0].counter;
+
+// Function to save nextTodoId to 'todos.metadata.json'
+function saveNextTodoId(nextTodoIdToSave) {
+  todosMetadata[0].counter = nextTodoIdToSave;
+  fs.writeFileSync(todosMetadataPath, JSON.stringify(todosMetadata, null, 2));
+}
 
 function readTodos() {
-  return JSON.parse(fs.readFileSync(todosDataPath, "utf8"));
+  try {
+    const todosData = fs.readFileSync(todosDataPath, "utf8");
+    return JSON.parse(todosData);
+  } catch (error) {
+    console.error("Error reading todos data:", error.message);
+    return [];
+  }
 }
 
 function saveTodos(todosToSave) {
   fs.writeFileSync(todosDataPath, JSON.stringify(todosToSave, null, 2));
 }
 
-module.exports = { readTodos, saveTodos };
+module.exports = { nextTodoId, saveNextTodoId, readTodos, saveTodos };

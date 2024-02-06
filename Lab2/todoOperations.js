@@ -1,23 +1,25 @@
 // todoOperations.js
-const { readTodos, saveTodos } = require("./database");
+const { saveNextTodoId, readTodos, saveTodos } = require("./database");
+let { nextTodoId } = require("./database");
 
-let todos = readTodos();
-let nextTodoId = todos.length > 0 ? Math.max(...todos.map((task) => task.id)) + 1 : 1;
 
 function addTodoTask(title) {
+  const todos = readTodos();
   const newTask = {
     id: ++nextTodoId,
     title,
     status: "to-do",
   };
-
+  
   todos.push(newTask);
   saveTodos(todos);
+  saveNextTodoId(nextTodoId);
   console.log(`To-do Task added: ${newTask.title}`);
   displayDatabaseInfo(todos);
 }
 
 function listTodoTasks(status) {
+  const todos = readTodos();
   if (!status) {
     console.log("To-Do List:");
     displayDatabaseInfo(todos);
@@ -34,6 +36,7 @@ function listTodoTasks(status) {
 }
 
 function editTodoTask(id, options) {
+  const todos = readTodos();
   const taskToEdit = findTaskById(Number(id));
   if (!taskToEdit) {
     console.error(`No task found with ID ${id}`);
@@ -65,6 +68,7 @@ function editTodoTask(id, options) {
 }
 
 function deleteTodoTask(id) {
+  const todos = readTodos();
   const taskToDelete = findTaskById(Number(id));
 
   if (!taskToDelete) {

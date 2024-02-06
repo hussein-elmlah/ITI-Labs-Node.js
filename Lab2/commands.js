@@ -42,7 +42,16 @@ program
     deleteTodoTask(id);
   });
 
+// New command to start the server
+program
+  .command("runServer")
+  .description("Start the HTTP server")
+  .action(() => {
+    const appServer = require("./server");
+    appServer();
+  });
+
 module.exports = program;
 
 // Parse command line arguments
-program.parse(process.argv);
+// program.parse(process.argv);
