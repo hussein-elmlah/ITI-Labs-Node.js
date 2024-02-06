@@ -29,4 +29,4 @@ function createHttpServer() {
 module.exports = createHttpServer;
 
 // Start the HTTP server
-createHttpServer();
+// createHttpServer();

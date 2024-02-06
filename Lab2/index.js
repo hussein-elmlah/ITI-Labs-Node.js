@@ -1,9 +1,9 @@
 // app.js
-const myServer = require("./server");
+const appServer = require("./server");
 const program = require("./commands");
 
 // Start the HTTP server
-// myServer();
+appServer();
 
 // Parse command line arguments
 program.parse(process.argv);
