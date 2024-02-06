@@ -47,15 +47,16 @@ function readTodos() {
   }
 }
 
-function readStyle() {
-  try {
-    const styleData = fs.createReadStream(stylePath, 'utf8');
-    return JSON.parse(styleData);
-  } catch (error) {
-    console.error('Error reading todos data:', error.message);
-    return [];
-  }
-}
+// function readStyle() {
+//   try {
+//     const styleData = fs.createReadStream(stylePath, 'utf8');
+//     return JSON.parse(styleData);
+//   } catch (error) {
+//     console.error('Error reading todos data:', error.message);
+//     return [];
+//   }
+// }
+
 function saveTodos(todosToSave) {
   fs.writeFileSync(todosDataPath, JSON.stringify(todosToSave, null, 2));
 }
