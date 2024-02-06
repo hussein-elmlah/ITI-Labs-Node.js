@@ -1,6 +1,6 @@
 // index.js
 // const appServer = require("./server");
-const program = require('./commands');
+const program = require("./commands");
 
 // Parse command line arguments
 program.parse(process.argv);

@@ -9,14 +9,26 @@ const todosDataPath = path.join(
   'todos.json',
 );
 
-// Get last id
-const todosMetadataPath = path.join(
+const stylePath = path.join(
   __dirname,
   'databases',
   'todosDB',
-  'todos.metadata.json',
+  'style.css',
 );
-const todosMetadata = JSON.parse(fs.readFileSync(todosMetadataPath, 'utf8'));
+// Get last id
+const todosMetadataPath = path.join(__dirname, 'databases', 'todosDB', 'todos.metadata.json');
+
+function readMetadata() {
+  try {
+    const metadata = fs.readFileSync(todosMetadataPath, 'utf8');
+    return JSON.parse(metadata);
+  } catch (error) {
+    console.error('Error reading metadata:', error.message);
+    return [];
+  }
+}
+
+const todosMetadata = readMetadata();
 const nextTodoId = todosMetadata[0].counter;
 
 // Function to save nextTodoId to 'todos.metadata.json'
@@ -27,7 +39,7 @@ function saveNextTodoId(nextTodoIdToSave) {
 
 function readTodos() {
   try {
-    const todosData = fs.readFileSync(todosDataPath, 'utf8');
+    const todosData = fs.createReadStream(todosDataPath, 'utf8');
     return JSON.parse(todosData);
   } catch (error) {
     console.error('Error reading todos data:', error.message);
@@ -35,10 +47,19 @@ function readTodos() {
   }
 }
 
+function readStyle() {
+  try {
+    const styleData = fs.createReadStream(stylePath, 'utf8');
+    return JSON.parse(styleData);
+  } catch (error) {
+    console.error('Error reading todos data:', error.message);
+    return [];
+  }
+}
 function saveTodos(todosToSave) {
   fs.writeFileSync(todosDataPath, JSON.stringify(todosToSave, null, 2));
 }
 
 module.exports = {
-  nextTodoId, saveNextTodoId, readTodos, saveTodos,
+  todosDataPath, nextTodoId, saveNextTodoId, readTodos, saveTodos,
 };

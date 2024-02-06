@@ -1,6 +1,6 @@
 // .eslintrc.js
 module.exports = {
-  extends: 'airbnb',
+  extends: 'airbnb-base',
   rules: {
     // Add or override rules as needed
   },

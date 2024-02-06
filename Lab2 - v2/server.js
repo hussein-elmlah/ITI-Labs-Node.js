@@ -1,87 +1,109 @@
-const http = require("http");
-const fs = require("fs");
-const path = require("path");
+// Import necessary modules
+const http = require("http"); // For creating HTTP server
+const fs = require("fs"); // For file system operations
+const path = require("path"); // For working with file paths
+const { todosDataPath } = require("./database"); // Import function to read todos
 
+// Define hostname and port for the server
 const hostname = "localhost";
 const port = 3000;
 
+// Function to create and start the HTTP server
 function createHttpServer() {
+  // Create an HTTP server instance
   const server = http.createServer((req, res) => {
-    if (req.method === "GET") {
-      if (req.url === "/") {
-        serveTodoList(req, res);
-      } else if (req.url === "/astronomy") {
-        serveAstronomyPage(req, res);
-      } else {
-        serveNotFoundPage(res);
-      }
+    // Handle requests for the root ("/") path
+    if (req.url === "/" && req.method === "GET") {
+      // Serve the home page
+      serveHomePage(res);
+    } else if (req.url === "/astronomy" && req.method === "GET") {
+      // Serve the astronomy page
+      serveAstronomyPage(res);
+    } else if (req.url === "/astronomy/image" && req.method === "GET") {
+      // Serve the image page
+      serveImagePage(res);
     } else {
-      serveNotFoundPage(res);
+      // If the requested path is unknown, serve a 404 page
+      serve404Page(res);
     }
   });
 
-  server.listen(port, hostname, (error) => {
-    if (error) {
-      console.error("Error starting the server:", error.message);
-    } else {
-      console.log(`Server running at http://${hostname}:${port}/`);
-    }
+  // Start the server to listen for incoming requests
+  server.listen(port, hostname, () => {
+    console.log(`Server running at http://${hostname}:${port}/`);
   });
 }
 
-function serveTodoList(req, res) {
+// Function to serve the home page
+function serveHomePage(res) {
+  // Set the content type of the response to HTML
   res.setHeader("Content-Type", "text/html");
 
-  const todosPath = path.join(__dirname, "todos.json");
-  const stylePath = path.join(__dirname, "style.css");
+  // Read todos from the database file
+  const todosStream = fs.createReadStream(todosDataPath, "utf-8");
 
-  if (!fs.existsSync(todosPath)) {
-    res.write("<body><h1>Empty ToDo List</h1></body>");
-    return res.end();
-  }
+  // Write HTML content to display the todo list
+  res.write("<h1>TODO List</h1>");
+  res.write("<ul>");
 
-  const todosStream = fs.createReadStream(todosPath, "utf-8");
-  const styleStream = fs.createReadStream(stylePath, "utf-8");
-
-  let todos = "";
+  // Read todos data stream
   todosStream.on("data", (chunk) => {
-    todos += chunk;
-  });
-
-  let style = "";
-  styleStream.on("data", (chunk) => {
-    style += chunk;
-  });
-
-  todosStream.on("end", () => {
-    res.write("<body> <ul>");
-    todos = JSON.parse(todos);
+    const todos = JSON.parse(chunk);
     todos.forEach((todo) => {
-      res.write(`<li>${todo.text}</li>`);
+      // Write each todo as a list item
+      res.write(`<li>${todo.title}</li>`);
     });
+  });
+
+  // When all data is read, close the list and end the response
+  todosStream.on("end", () => {
     res.write("</ul>");
-    styleStream.on("end", () => {
-      res.write(`<style>${style}</style></body>`);
-      return res.end();
-    });
+    res.end();
   });
 }
 
-function serveAstronomyPage(req, res) {
-  const imgSrc =
-    "https://media.cnn.com/api/v1/images/stellar/prod/200505225212-04-fossils-and-climate-change-museum.jpg?q=x_0,y_0,h_1125,w_1999,c_fill/h_720,w_1280";
+// Function to serve the astronomy page
+function serveAstronomyPage(res) {
+  // Set the content type of the response to HTML
   res.setHeader("Content-Type", "text/html");
-  res.write(`<body><div><img src="${imgSrc}"></div></body>`);
+
+  // Write HTML content to display the astronomy page
   res.write(
-    "<p>Wati El Hitan, known as the Valley of Whales, is home to the unique Fossils and Climate Change Museum</p>"
+    `<h1>Astronomy Page</h1><img src="/astronomy/image" alt="Astronomy Image">`
   );
-  return res.end();
+  res.write(
+    "<p>Wadi El Hitan, known as the Valley of Whales, is home to the unique Fossils and Climate Change Museum</p>"
+  );
+
+  // End the response
+  res.end();
 }
 
-function serveNotFoundPage(res) {
+// Function to serve the image page
+function serveImagePage(res) {
+  // Set the content type of the response to image/jpeg
+  res.setHeader("Content-Type", "image/jpeg");
+
+  // Read the image file and pipe it to the response
+  const imagePath = path.join(__dirname, "astronomy_image.jpg");
+  const imageStream = fs.createReadStream(imagePath);
+  imageStream.pipe(res);
+}
+
+// Function to serve the 404 page
+function serve404Page(res) {
+  // Set the status code to 404
+  res.statusCode = 404;
+
+  // Set the content type of the response to HTML
   res.setHeader("Content-Type", "text/html");
-  res.write("<h1>404: Page Not Found</h1>");
-  return res.end();
+
+  // Write HTML content for the 404 page
+  res.write("<h1>404 Page Not Found</h1>");
+
+  // End the response
+  res.end();
 }
 
+// Export the function to create the HTTP server
 module.exports = createHttpServer;

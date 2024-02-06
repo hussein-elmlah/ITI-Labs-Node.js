@@ -1,4 +1,4 @@
 // runServer.js
-const appServer = require('./server');
+const createHttpServer = require("./server");
 
-appServer();
+createHttpServer();
