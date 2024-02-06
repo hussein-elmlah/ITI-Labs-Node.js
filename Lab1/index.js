@@ -4,10 +4,10 @@ const { program } = require("commander");
 const path = require("path");
 
 // Database connection
-const currentFilePath = __filename;
-const currentDirectory = path.dirname(currentFilePath);
+// const currentFilePath = __filename;
+// const currentDirectory = __dirname;
 const todosDataPath = path.join(
-  currentDirectory,
+  __dirname,
   "databases",
   "todosDB",
   "todos.json"
@@ -17,64 +17,140 @@ let todos = JSON.parse(fs.readFileSync(todosDataPath, "utf8"));
 
 // Get last id
 const todosMetadataPath = path.join(
-  currentDirectory,
+  __dirname,
   "databases",
   "todosDB",
   "todos.metadata.json"
 );
 
 let todosMetadata = JSON.parse(fs.readFileSync(todosMetadataPath, "utf8"));
-let idCounter = todosMetadata[0].counter;
+let nextTodoId = todosMetadata[0].counter;
 
 // Function to save to 'todos' database
 function saveTodoList(todosToSave) {
   fs.writeFileSync(todosDataPath, JSON.stringify(todosToSave, null, 2));
 }
 
-// Function to save idCounter to 'todos.metadata.json'
-function saveCounter(idCounterToSave) {
-  todosMetadata[0].counter = idCounterToSave;
+// Function to save nextTodoId to 'todos.metadata.json'
+function saveNextTodoId(nextTodoIdToSave) {
+  todosMetadata[0].counter = nextTodoIdToSave;
   fs.writeFileSync(todosMetadataPath, JSON.stringify(todosMetadata, null, 2));
 }
 
 // Function to show database information
-function showDatabase(todosToShow) {
-    console.log(
-      "\n\n---------------------- Start of database information ----------------------\n\n"
-    );
-  
-    todosToShow.forEach((task) => {
-      console.log(`ID:${task.id},  Title:${task.title},  Status:${task.status}`);
-    });
-  
-    console.log(
-      "\n\n---------------------- End of database information ----------------------"
-    );
+function displayDatabaseInfo(todosToDisplay) {
+  console.log(
+    "\n\n---------------------- Start of database information ----------------------\n\n"
+  );
+  console.log(
+    todosToDisplay
+      .map((task) => {
+        return `ID:${task.id},  Title:${task.title},  Status:${task.status}`;
+      })
+      .join("\n")
+  );
+  console.log(
+    "\n\n---------------------- End of database information ----------------------"
+  );
+}
+
+// Function to find task by ID
+function findTaskById(id) {
+  return todos.find((task) => task.id === id);
+}
+
+// Function to add a to-do task
+function addTodoTask(title) {
+  const newTask = {
+    id: ++nextTodoId,
+    title,
+    status: "to-do",
+  };
+
+  todos.push(newTask);
+  saveTodoList(todos);
+  saveNextTodoId(nextTodoId);
+  console.log(`To-do Task added: ${newTask.title}`);
+  displayDatabaseInfo(todos);
+}
+
+// Function to list tasks
+function listTodoTasks(status) {
+  if (!status) {
+    console.log("To-Do List:");
+    displayDatabaseInfo(todos);
+    return;
   }
-  
+  if (!(status === "to-do" || status === "in-progress" || status === "done")) {
+    console.error("Invalid status. Allowed values: to-do, in-progress, done.");
+    return;
+  }
 
-//================================================================
+  const filteredTodos = todos.filter((task) => task.status === status);
+  console.log(`To-Do List with status '${status}':`);
+  displayDatabaseInfo(filteredTodos);
+}
 
-// Command to add task 
+// Function to edit a to-do task
+function editTodoTask(id, options) {
+  const taskToEdit = findTaskById(Number(id));
+  if (!taskToEdit) {
+    console.error(`No task found with ID ${id}`);
+    return;
+  }
+
+  if (!options.title && !options.status) {
+    console.error("Specify -t or -s or both to update the task.");
+    return;
+  }
+
+  if (options.title) {
+    taskToEdit.title = options.title;
+    console.log(`To-do task with ID ${id} edited: ${taskToEdit.title}`);
+  }
+
+  if (options.status) {
+    if (["to-do", "in-progress", "done"].includes(options.status)) {
+      taskToEdit.status = options.status;
+      console.log(`To-do task with ID ${id} marked as '${taskToEdit.status}'`);
+    } else {
+      console.error(
+        "Invalid status. Allowed values: to-do, in-progress, done."
+      );
+      return;
+    }
+  }
+
+  saveTodoList(todos);
+  displayDatabaseInfo(todos);
+}
+
+// Function to delete a to-do task
+function deleteTodoTask(id) {
+  const taskToDelete = findTaskById(Number(id));
+
+  if (!taskToDelete) {
+    console.error(`No task found with ID ${id}`);
+    return;
+  }
+
+  const indexToDelete = todos.indexOf(taskToDelete);
+
+  const deletedTask = todos.splice(indexToDelete, 1)[0];
+  saveTodoList(todos);
+
+  console.log(`To-do task with ID ${id} deleted`);
+  displayDatabaseInfo(todos);
+}
+
+// Command to add task
 program
   .command("add")
   .description("Add a to-do Task")
-  .requiredOption("-t, --title <string>", "title of the Task")
+  .requiredOption("-t, --title <string>", "Title of the Task")
   .action((options) => {
-    const newTask = {
-      id: ++idCounter,
-      title: options.title,
-      status: "to-do",
-    };
-
-    todos.push(newTask);
-    saveTodoList(todos);
-    saveCounter(idCounter);
-    console.log(`To-do Task added: ${newTask.title}`);
-    showDatabase(todos);
+    addTodoTask(options.title);
   });
-
-//================================================================
 
 // Command to list tasks
 program
@@ -85,83 +161,26 @@ program
     "Filter entries by status [to-do, in-progress, done]"
   )
   .action((options) => {
-    if (!(options.status === "to-do" || options.status === "in-progress" || options.status === "done")) {
-      showDatabase(todos);
-    } else {
-      const filteredTodos = todos.filter(
-        (task) => task.status === options.status
-      );
-      console.log(`To-Do List with status '${options.status}':`);
-      showDatabase(filteredTodos);
-    }
+    listTodoTasks(options.status);
   });
 
+// Command to edit tasks
+program
+  .command("edit <id>")
+  .description("Edit a to-do entry by ID")
+  .option("-t, --title <string>", "New title for the entry")
+  .option("-s, --status <string>", "New status for the entry")
+  .action((id, options) => {
+    editTodoTask(id, options);
+  });
 
-
-
-//================================================================
-
-// Function to find entry by ID
-function findEntryById(id) {
-    return todos.find((entry) => entry.id === id);
-  }
-  
-  // Command to edit tasks
-  program
-    .command("edit <id>")
-    .description("Edit a to-do entry by ID")
-    .option("-t, --title <string>", "New title for the entry")
-    .option("-s, --status <string>", "New status for the entry")
-    .action((id, options) => {
-      const entryToEdit = findEntryById(Number(id));
-      if (!entryToEdit) {
-        console.error(`No entry found with ID ${id}`);
-        return;
-      }
-  
-      if (!options.title && !options.status) {
-        console.error("Specify -t or -s or both to update the entry.");
-        return;
-      }
-  
-      if (options.title) {
-        entryToEdit.title = options.title;
-        console.log(`To-do entry with ID ${id} edited: ${entryToEdit.title}`);
-      }
-      if (options.status) {
-        entryToEdit.status = options.status;
-        console.log(
-          `To-do entry with ID ${id} marked as '${entryToEdit.status}'`
-        );
-      }
-      saveTodoList(todos);
-      showDatabase(todos);
-    });
-  
 // Command to delete tasks
 program
   .command("delete <id>")
   .description("Delete a to-do entry by ID")
   .action((id) => {
-    const indexToDelete = todos.findIndex((entry) => entry.id === Number(id));
-
-    if (indexToDelete === -1) {
-      console.error(`No entry found with ID ${id}`);
-      return;
-    }
-
-    const deletedEntry = todos.splice(indexToDelete, 1)[0];
-    saveTodoList(todos);
-
-    console.log(`To-do entry with ID ${id} deleted: ${deletedEntry.title}`);
-    showDatabase(todos);
+    deleteTodoTask(id);
   });
-
-
-
-//================================================================
 
 // Parse command line arguments
 program.parse(process.argv);
-
-//================================================================
