@@ -4,6 +4,7 @@ let { nextTodoId } = require('./database');
 
 function addTodoTask(title) {
   const todos = readTodos();
+  console.log(todos);
   const newTask = {
     id: ++nextTodoId,
     title,
@@ -11,8 +12,8 @@ function addTodoTask(title) {
   };
 
   todos.push(newTask);
-  saveTodos(todos);
-  saveNextTodoId(nextTodoId);
+  saveTodos(todos); // Save the updated todo list
+  saveNextTodoId(nextTodoId); // Save the nextTodoId
   console.log(`To-do Task added: ${newTask.title}`);
   displayDatabaseInfo(todos);
 }

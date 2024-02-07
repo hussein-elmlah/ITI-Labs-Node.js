@@ -39,7 +39,7 @@ function saveNextTodoId(nextTodoIdToSave) {
 
 function readTodos() {
   try {
-    const todosData = fs.createReadStream(todosDataPath, 'utf8');
+    const todosData = fs.readFileSync(todosDataPath, 'utf8');
     return JSON.parse(todosData);
   } catch (error) {
     console.error('Error reading todos data:', error.message);
@@ -49,7 +49,7 @@ function readTodos() {
 
 // function readStyle() {
 //   try {
-//     const styleData = fs.createReadStream(stylePath, 'utf8');
+//     const styleData = fs.readFileSync(stylePath, 'utf8');
 //     return JSON.parse(styleData);
 //   } catch (error) {
 //     console.error('Error reading todos data:', error.message);
