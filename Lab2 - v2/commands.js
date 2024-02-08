@@ -32,14 +32,14 @@ program
   .option('-t, --title <string>', 'New title for the entry')
   .option('-s, --status <string>', 'New status for the entry')
   .action((id, options) => {
-    editTodoTask(id, options);
+    editTodoTask(Number(id), options);
   });
 
 program
   .command('delete <id>')
   .description('Delete a to-do entry by ID')
   .action((id) => {
-    deleteTodoTask(id);
+    deleteTodoTask(Number(id));
   });
 
 // New command to start the server

@@ -37,7 +37,8 @@ function listTodoTasks(status) {
 
 function editTodoTask(id, options) {
   const todos = readTodos();
-  const taskToEdit = findTaskById(Number(id));
+  const taskToEdit = todos.find((task) => task.id === id);
+  console.log(taskToEdit);
   if (!taskToEdit) {
     console.error(`No task found with ID ${id}`);
     return;
@@ -68,37 +69,19 @@ function editTodoTask(id, options) {
 }
 
 function deleteTodoTask(id) {
-  let todos = readTodos();
-  const taskToDelete = findTaskById(Number(id));
+  const todos = readTodos();
 
-  // console.log(todos);
-  // console.log(taskToDelete);
-  // const indexToDelete2 = todos.indexOf(taskToDelete);
-  // console.log(indexToDelete2);
-  // console.log(todos);
-  // console.log(typeof(todos));
-
-  if (!taskToDelete) {
+  const indexToDelete = todos.findIndex(obj => obj.id === id);
+  if (indexToDelete === -1) {
     console.error(`No task found with ID ${id}`);
     return;
   }
 
-  // const indexToDelete = todos.indexOf(taskToDelete);
-  // const deletedTask = todos.splice(indexToDelete, 1);
-
-  todos = todos.filter(
-      (task) => task.id!== taskToDelete.id,
-  );
+  const deletedTask = todos.splice(indexToDelete, 1);
 
   saveTodos(todos);
-
-  console.log(`To-do task with ID ${id} deleted`);
+  console.log(`To-do task with ID ${id} deleted, which content was ${deletedTask}`);
   displayDatabaseInfo(todos);
-}
-
-function findTaskById(id) {
-  const todos = readTodos();
-  return todos.find((task) => task.id === id);
 }
 
 function displayDatabaseInfo(todosToDisplay) {
