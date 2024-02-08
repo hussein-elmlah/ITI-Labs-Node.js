@@ -34,20 +34,22 @@ function serveHomePage(res) {
 <head>
   <link rel="stylesheet" type="text/css" href="/home-style.css">
   <title>Home Page</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 </head>
-<body>
+<body class = "bg-dark text-light">
   <h1>TODO List</h1>
-  <ul>`);
+  <ol class="list-group list-group-numbered">
+`);
 
   todosStream.on("data", (chunk) => {
     const todos = JSON.parse(chunk);
     todos.forEach((todo) => {
-      res.write(`<li>${todo.title}</li>`);
+      res.write(`<li class="list-group-item">${todo.title}</li>`);
     });
   });
 
   todosStream.on("end", () => {
-    res.write(`</ul>
+    res.write(`</ol>
 </body>
 </html>`);
     res.end();
@@ -63,8 +65,9 @@ function serveAstronomyPage(res) {
 <html>
 <head>
   <title>Astronomy Page</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class = "bg-dark text-light">
   <h1>Astronomy Page</h1>
   <img src="${imgSrc}" alt="Astronomy Image">
   <p>Wadi El Hitan, known as the Valley of Whales, is home to the unique Fossils and Climate Change Museum</p>

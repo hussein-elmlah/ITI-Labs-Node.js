@@ -4,7 +4,8 @@
 /* Custom styles */
 
 body {
-  background-color: #f8f9fa;
+  background-color: #333333;
+  color: white !important;
 }
 
 .container {
