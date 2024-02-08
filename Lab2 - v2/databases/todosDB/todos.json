@@ -1,17 +1,27 @@
 [
   {
     "id": 1,
-    "title": "domfrf",
+    "title": "workouts",
     "status": "in-progress"
   },
   {
     "id": 2,
-    "title": "domo",
+    "title": "shower",
     "status": "done"
   },
   {
     "id": 4,
-    "title": "domo",
+    "title": "pray",
+    "status": "to-do"
+  },
+  {
+    "id": 7,
+    "title": "music",
+    "status": "to-do"
+  },
+  {
+    "id": 19,
+    "title": "music6",
     "status": "to-do"
   }
 ]

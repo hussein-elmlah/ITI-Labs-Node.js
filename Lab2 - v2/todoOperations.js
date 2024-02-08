@@ -68,17 +68,28 @@ function editTodoTask(id, options) {
 }
 
 function deleteTodoTask(id) {
-  const todos = readTodos();
+  let todos = readTodos();
   const taskToDelete = findTaskById(Number(id));
+
+  // console.log(todos);
+  // console.log(taskToDelete);
+  // const indexToDelete2 = todos.indexOf(taskToDelete);
+  // console.log(indexToDelete2);
+  // console.log(todos);
+  // console.log(typeof(todos));
 
   if (!taskToDelete) {
     console.error(`No task found with ID ${id}`);
     return;
   }
 
-  const indexToDelete = todos.indexOf(taskToDelete);
+  // const indexToDelete = todos.indexOf(taskToDelete);
+  // const deletedTask = todos.splice(indexToDelete, 1);
 
-  const deletedTask = todos.splice(indexToDelete, 1)[0];
+  todos = todos.filter(
+      (task) => task.id!== taskToDelete.id,
+  );
+
   saveTodos(todos);
 
   console.log(`To-do task with ID ${id} deleted`);
@@ -86,6 +97,7 @@ function deleteTodoTask(id) {
 }
 
 function findTaskById(id) {
+  const todos = readTodos();
   return todos.find((task) => task.id === id);
 }
 
