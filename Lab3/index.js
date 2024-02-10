@@ -1,21 +1,31 @@
-const express = require('express');
-const router = require('./routes/todos');
+const express = require("express");
+const fs = require("fs");
+const path = require("path");
+const cors = require("cors");
+const { todosDataPath } = require("./database");
+const todoRouter = require("./routes/todoRoutes");
 
 const app = express();
+const port = process.env.PORT || 3000;
 
-const PORT = process.env.PORT || 3000;
-
-app.use(express.static('public'));
-app.set('view engine', 'pug');
-
+// Middleware
+app.use(cors());
 app.use(express.json());
-app.use((req, res, next) => {
-  console.log('Request received');
-  next();
+
+
+
+app.use('/todos', todoRouter);
+
+// Serve static files (Assuming your Angular build is in the frontend/dist directory)
+// app.use(express.static(__dirname + '/frontend/dist'));
+
+// Handle undefined routes - serve the Angular app for any other route
+app.get("*", (req, res) => {
+  const notFoundPagePath = path.join(__dirname, "public", "404", "index.html");
+  res.status(404).sendFile(notFoundPagePath);
 });
 
-app.use('/todos', router);
-
-app.listen(PORT, () => {
-  console.log('Server is running on port 3000');
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
