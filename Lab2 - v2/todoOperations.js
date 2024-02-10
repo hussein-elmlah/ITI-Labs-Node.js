@@ -1,6 +1,6 @@
 // todoOperations.js
-const { saveNextTodoId, readTodos, saveTodos } = require('./database');
-let { nextTodoId } = require('./database');
+const { saveNextTodoId, readTodos, saveTodos } = require("./database");
+let { nextTodoId } = require("./database");
 
 function addTodoTask(title) {
   const todos = readTodos();
@@ -8,7 +8,7 @@ function addTodoTask(title) {
   const newTask = {
     id: ++nextTodoId,
     title,
-    status: 'to-do',
+    status: "to-do",
   };
 
   todos.push(newTask);
@@ -21,12 +21,12 @@ function addTodoTask(title) {
 function listTodoTasks(status) {
   const todos = readTodos();
   if (!status) {
-    console.log('To-Do List:');
+    console.log("To-Do List:");
     displayDatabaseInfo(todos);
     return;
   }
-  if (!(status === 'to-do' || status === 'in-progress' || status === 'done')) {
-    console.error('Invalid status. Allowed values: to-do, in-progress, done.');
+  if (!["to-do", "in-progress", "done"].includes(status)) {
+    console.error("Invalid status. Allowed values: to-do, in-progress, done.");
     return;
   }
 
@@ -38,14 +38,14 @@ function listTodoTasks(status) {
 function editTodoTask(id, options) {
   const todos = readTodos();
   const taskToEdit = todos.find((task) => task.id === id);
-  console.log(taskToEdit);
+
   if (!taskToEdit) {
     console.error(`No task found with ID ${id}`);
     return;
   }
 
   if (!options.title && !options.status) {
-    console.error('Specify -t or -s or both to update the task.');
+    console.error("Specify -t or -s or both to update the task.");
     return;
   }
 
@@ -55,13 +55,15 @@ function editTodoTask(id, options) {
   }
 
   if (options.status) {
-    if (['to-do', 'in-progress', 'done'].includes(options.status)) {
-      taskToEdit.status = options.status;
-      console.log(`To-do task with ID ${id} marked as '${taskToEdit.status}'`);
-    } else {
-      console.error('Invalid status. Allowed values: to-do, in-progress, done.');
+    if (!["to-do", "in-progress", "done"].includes(options.status)) {
+      console.error(
+        "Invalid status. Allowed values: to-do, in-progress, done."
+      );
       return;
     }
+
+    taskToEdit.status = options.status;
+    console.log(`To-do task with ID ${id} marked as '${taskToEdit.status}'`);
   }
 
   saveTodos(todos);
@@ -71,7 +73,7 @@ function editTodoTask(id, options) {
 function deleteTodoTask(id) {
   const todos = readTodos();
 
-  const indexToDelete = todos.findIndex(obj => obj.id === id);
+  const indexToDelete = todos.findIndex((obj) => obj.id === id);
   if (indexToDelete === -1) {
     console.error(`No task found with ID ${id}`);
     return;
@@ -80,24 +82,31 @@ function deleteTodoTask(id) {
   const deletedTask = todos.splice(indexToDelete, 1);
 
   saveTodos(todos);
-  console.log(`To-do task with ID ${id} deleted, which content was ${deletedTask}`);
+  console.log(
+    `To-do task with ID ${id} deleted, which content was ${deletedTask}`
+  );
   displayDatabaseInfo(todos);
 }
 
 function displayDatabaseInfo(todosToDisplay) {
   console.log(
-    '\n\n---------------------- Start of database information ----------------------\n\n',
+    "\n\n---------------------- Start of database information ----------------------\n\n"
   );
   console.log(
     todosToDisplay
-      .map((task) => `ID:${task.id},  Title:${task.title},  Status:${task.status}`)
-      .join('\n'),
+      .map(
+        (task) => `ID:${task.id},  Title:${task.title},  Status:${task.status}`
+      )
+      .join("\n")
   );
   console.log(
-    '\n\n---------------------- End of database information ----------------------',
+    "\n\n---------------------- End of database information ----------------------"
   );
 }
 
 module.exports = {
-  addTodoTask, listTodoTasks, editTodoTask, deleteTodoTask,
+  addTodoTask,
+  listTodoTasks,
+  editTodoTask,
+  deleteTodoTask,
 };
