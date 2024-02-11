@@ -23,7 +23,7 @@ app.get("/ejs", (req, res) => {
   const todos = readTodos();
   // Render the EJS template with todos data
   res.render("index", { todos });
-});
+}); 
 
 // Set the view engine to EJS
 app.set("view engine", "ejs");
