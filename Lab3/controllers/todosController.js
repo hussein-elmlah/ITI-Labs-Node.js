@@ -88,9 +88,9 @@ exports.updateTodoById = (req, res) => {
     return res.status(404).send("Todo not found");
   }
 
-  if (req.body.id && req.body.id !== todo.id) {
-    return res.status(400).send("You do not have permission to update ID");
-  }
+  // if (req.body.id && req.body.id !== todo.id) {
+  //   return res.status(400).send("You do not have permission to update ID");
+  // }
 
   if (!req.body.title || req.body.title.trim() === '') {
     return res.status(400).json({
