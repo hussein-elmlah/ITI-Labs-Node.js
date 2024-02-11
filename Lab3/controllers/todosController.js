@@ -1,8 +1,4 @@
-// controllers/todosController.js
-
-const { saveTodosCounter, readTodos, saveTodos } = require("../database");
-let { todosCounter } = require("../database");
-
+const { todosCounterPlusOne, readTodos, saveTodos } = require("../models/todoModel");
 
 // Get a todo by ID
 exports.getTodoById = (req, res) => {
@@ -53,13 +49,12 @@ exports.getFilteredTodos = (req, res) => {
 exports.createTodo = (req, res) => {
   const todos = readTodos();
   const newTodo = {
-    id: ++todosCounter,
+    id: todosCounterPlusOne(),
     title: req.body.title,
     status: req.body.status ? req.body.status : "to-do",
   };
   todos.push(newTodo);
   saveTodos(todos);
-  saveTodosCounter(todosCounter); // Save the todosCounter
   res.status(201).json(newTodo);
 };
 

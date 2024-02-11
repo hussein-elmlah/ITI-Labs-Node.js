@@ -2,8 +2,7 @@ const express = require("express");
 const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
-const { todosDataPath } = require("./database");
-const { readTodos } = require("./database");
+const { readTodos } = require("./models/todoModel");
 
 const todoRouter = require("./routes/todoRoutes");
 
