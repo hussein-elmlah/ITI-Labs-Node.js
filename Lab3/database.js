@@ -29,13 +29,17 @@ function readMetadata() {
 }
 
 const todosMetadata = readMetadata();
-const nextTodoId = todosMetadata[0].counter;
+const todosCounter = todosMetadata[0].counter;
 
-// Function to save nextTodoId to 'todos.metadata.json'
-function saveNextTodoId(nextTodoIdToSave) {
-  todosMetadata[0].counter = nextTodoIdToSave;
+// Function to save todosCounter to 'todos.metadata.json'
+function saveTodosCounter(todosCounterToSave) {
+  todosMetadata[0].counter = todosCounterToSave;
   fs.writeFileSync(todosMetadataPath, JSON.stringify(todosMetadata, null, 2));
 }
+// Function to get lastTodoId to 'todos.metadata.json'
+// function getLastTodoId() {
+//   return todosMetadata[0].counter;
+// }
 
 function readTodos() {
   try {
@@ -62,5 +66,5 @@ function saveTodos(todosToSave) {
 }
 
 module.exports = {
-  todosDataPath, nextTodoId, saveNextTodoId, readTodos, saveTodos,
+  todosDataPath, todosCounter, saveTodosCounter, readTodos, saveTodos,
 };

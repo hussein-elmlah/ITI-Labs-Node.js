@@ -3,6 +3,8 @@ const fs = require("fs");
 const path = require("path");
 const cors = require("cors");
 const { todosDataPath } = require("./database");
+const { readTodos } = require("./database");
+
 const todoRouter = require("./routes/todoRoutes");
 
 const app = express();
@@ -12,12 +14,27 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// Serve static files from the 'public' directory
+app.use(express.static(path.join(__dirname, "public")));
 
+app.use("/todos", todoRouter);
 
-app.use('/todos', todoRouter);
+// Route handler to render the SSR HTML page
+app.get("/ejs", (req, res) => {
+  const todos = readTodos();
+  // Render the EJS template with todos data
+  res.render("index", { todos });
+});
 
-// Serve static files (Assuming your Angular build is in the frontend/dist directory)
-// app.use(express.static(__dirname + '/frontend/dist'));
+// Set the view engine to EJS
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
+
+// Serve SSR html page
+app.get("/", (req, res) => {
+  // Render SSR HTML page here
+  res.sendFile(__dirname + "/views/index.html");
+});
 
 // Handle undefined routes - serve the Angular app for any other route
 app.get("*", (req, res) => {
