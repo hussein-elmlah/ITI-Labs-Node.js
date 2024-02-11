@@ -47,10 +47,20 @@ exports.getFilteredTodos = (req, res) => {
 
 // Create a new todo
 exports.createTodo = (req, res) => {
+  if (!req.body.title || req.body.title.trim() === '') {
+    return res.status(400).json({
+      error: "Title cannot be empty",
+    });
+  }
+  if (!["to-do", "in-progress", "done"].includes(req.body.status)) {
+    return res.status(400).json({
+      error: "Invalid status. Allowed values: to-do, in-progress, done",
+    });
+  }
   const todos = readTodos();
   const newTodo = {
     id: todosCounterPlusOne(),
-    title: req.body.title,
+    title: req.body.title.trim(),
     status: req.body.status ? req.body.status : "to-do",
   };
   todos.push(newTodo);
@@ -82,16 +92,22 @@ exports.updateTodoById = (req, res) => {
     return res.status(400).send("You do not have permission to update ID");
   }
 
-  if (req.body.status) {
-    if (["to-do", "in-progress", "done"].includes(req.body.status)) {
-      todo.status = req.body.status;
-    } else {
-      return res.status(400).send("Invalid status value");
-    }
+  if (!req.body.title || req.body.title.trim() === '') {
+    return res.status(400).json({
+      error: "Title cannot be empty",
+    });
+  } else {
+    todo.title = req.body.title;
   }
 
-  if (req.body.title) {
-    todo.title = req.body.title;
+  if (!req.body.status) {
+    return res.status(400).send("Status cannot be empty");
+  } else {
+    if (!["to-do", "in-progress", "done"].includes(req.body.status)) {
+      return res.status(400).send("Invalid status. Allowed values: to-do, in-progress, done");
+    } else {
+      todo.status = req.body.status;
+    }
   }
 
   saveTodos(todos);
