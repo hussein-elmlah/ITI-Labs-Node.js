@@ -5,7 +5,7 @@ const todoRoutes = require('./routes/todoRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/todoApp';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/todosDB';
 
 // Connect to MongoDB database
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
