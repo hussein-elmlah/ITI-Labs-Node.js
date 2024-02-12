@@ -1,45 +1,39 @@
-// controllers/usersController.js
-
 const User = require('../models/User');
 const CustomError = require('../lib/customError');
 
-exports.createUser = async (userData) => {
-  try {
-    const user = await User.create(userData);
+exports.createUser = async (body) => {
+    const user = await User.create(body)
+        .catch((error) => {
+            throw new CustomError(`Failed to create user: ${error.message}`, 500);
+        });
     return user;
-  } catch (error) {
-    throw new CustomError(error.message, 422);
-  }
 };
 
 exports.getAllUsers = async () => {
-  try {
-    const users = await User.find({}, { firstName: 1, _id: 0 });
+    const users = await User.find();
     return users;
-  } catch (error) {
-    throw new CustomError(error.message, 500);
-  }
 };
 
-exports.deleteUser = async (userId) => {
-  try {
-    const acknowledge = await User.deleteOne({ _id: userId });
-    if (acknowledge.deletedCount === 0) {
-      throw new CustomError('User not found', 404);
-    }
-  } catch (error) {
-    throw new CustomError(error.message, error.status || 500);
-  }
-};
-
-exports.updateUser = async (userId, userData) => {
-  try {
-    const user = await User.findByIdAndUpdate(userId, userData, { new: true });
+exports.getUserById = async (id) => {
+    const user = await User.findById(id);
     if (!user) {
-      throw new CustomError('User not found', 404);
+        throw new CustomError(`User not found with id: ${id}`, 404);
     }
     return user;
-  } catch (error) {
-    throw new CustomError(error.message, error.status || 500);
-  }
+};
+
+exports.updateUser = async (id, body) => {
+    const user = await User.findByIdAndUpdate(id, body, { new: true });
+    if (!user) {
+        throw new CustomError(`User not found with id: ${id}`, 404);
+    }
+    return user;
+};
+
+exports.deleteUser = async (id) => {
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+        throw new CustomError(`User not found with id: ${id}`, 404);
+    }
+    return user;
 };

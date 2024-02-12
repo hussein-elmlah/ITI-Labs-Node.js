@@ -1,27 +1,42 @@
-// routes/todosRoutes.js
-
 const express = require('express');
 const router = express.Router();
-const TodosController = require('../controllers/todosController');
 const asyncWrapper = require('../lib/async-wrapper');
+const TodosController = require('../controllers/todosController');
+const CustomError = require('../lib/customError');
 
-router.get('/', async (req, res) => {
-  const todos = await asyncWrapper(TodosController.getAllTodos());
+// GET /todos
+router.get('/', async (req, res, next) => {
+  const [err, todos] = await asyncWrapper(TodosController.getAllTodos());
+  if (err) {
+    return next(new CustomError('Error getting todos', 400));
+  }
   res.json(todos);
 });
 
-router.post('/', async (req, res) => {
-  const todo = await asyncWrapper(TodosController.createTodo(req.body));
+// POST /todos
+router.post('/', async (req, res, next) => {
+  const [err, todo] = await asyncWrapper(TodosController.createTodo(req.body));
+  if (err) {
+    return next(new CustomError('Error creating todo', 400));
+  }
   res.status(201).json(todo);
 });
 
-router.patch('/:id', async (req, res) => {
-  const todo = await asyncWrapper(TodosController.updateTodo(req.params.id, req.body));
+// PATCH /todos/:id
+router.patch('/:id', async (req, res, next) => {
+  const [err, todo] = await asyncWrapper(TodosController.updateTodo(req.params.id, req.body));
+  if (err) {
+    return next(new CustomError('Error updating todo', 400));
+  }
   res.json(todo);
 });
 
-router.delete('/:id', async (req, res) => {
-  await asyncWrapper(TodosController.deleteTodo(req.params.id));
+// DELETE /todos/:id
+router.delete('/:id', async (req, res, next) => {
+  const [err, data] = await asyncWrapper(TodosController.deleteTodo(req.params.id));
+  if (err) {
+    return next(new CustomError('Error deleting todo', 400));
+  }
   res.sendStatus(204);
 });
 
