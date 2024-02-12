@@ -1,37 +1,39 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const userRoutes = require('./routes/userRoutes');
-const todoRoutes = require('./routes/todoRoutes');
+const express = require("express");
+const mongoose = require("mongoose");
+const userRoutes = require("./routes/userRoutes");
+const todoRoutes = require("./routes/todoRoutes");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/todosDB';
+const MONGODB_URI =
+  process.env.MONGODB_URI || "mongodb://localhost:27017/todosDB";
 
 // Connect to MongoDB database
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose
+  .connect(MONGODB_URI)
   .then(() => {
-    console.log('Connected to MongoDB database');
+    console.log("Connected to MongoDB database");
   })
   .catch((err) => {
-    console.error('Error connecting to MongoDB:', err.message);
+    console.error("Error connecting to MongoDB:", err.message);
   });
 
 // Middleware
 app.use(express.json());
 
 // Routes
-app.use('/users', userRoutes);
-app.use('/todos', todoRoutes);
+app.use("/users", userRoutes);
+app.use("/todos", todoRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Internal server error' });
-});
+  console.error(err.stack)
+  res.status(500).send('Something broke!')
+})
 
 // Error handling for uncaught exceptions
-process.on('uncaughtException', function(err) {
-  console.log('Uncaught exception occurred:', err);
+process.on("uncaughtException", function (err) {
+  console.log("Uncaught exception occurred:", err);
 });
 
 // Start server
