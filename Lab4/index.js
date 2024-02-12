@@ -1,44 +1,31 @@
 const express = require("express");
-const fs = require("fs");
-const path = require("path");
-const cors = require("cors");
-const { readTodos } = require("./models/todoModel");
+const mongoose = require("mongoose");
 
-const todoRouter = require("./routes/todoRoutes");
+// Routes
+const todoRouter = require("./routes/todosRoutes");
+const userRouter = require("./routes/usersRoutes");
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Connect to MongoDB
+mongoose
+  .connect("mongodb://localhost:27017/todosDB", {})
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((error) => console.error("Could not connect to MongoDB", error));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
+app.use(express.static("public"));
 
-// Serve static files from the 'public' directory
-app.use(express.static(path.join(__dirname, "public")));
-
+// Routes
 app.use("/todos", todoRouter);
+app.use("/users", userRouter);
 
-// Route handler to render the SSR HTML page
-app.get("/ejs", (req, res) => {
-  const todos = readTodos();
-  // Render the EJS template with todos data
-  res.render("index", { todos });
-});
-
-// Set the view engine to EJS
-app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-
-// Serve SSR html page
-app.get("/", (req, res) => {
-  // Render SSR HTML page here
-  res.sendFile(__dirname + "/views/index.html");
-});
-
-// Handle undefined routes - serve the Angular app for any other route
-app.get("*", (req, res) => {
-  const notFoundPagePath = path.join(__dirname, "public", "404", "index.html");
-  res.status(404).sendFile(notFoundPagePath);
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send("Something broke!");
 });
 
 // Start the server
