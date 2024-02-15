@@ -1,76 +1,57 @@
-const Todo = require('../models/todo');
+const Todo = require('../models/todoModel');
 
-// Get a todo by ID
+// Controller methods for todo CRUD operations
+
+exports.getAllTodos = async (req, res) => {
+  try {
+    const todos = await Todo.find();
+    res.json(todos);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.getTodoById = async (req, res) => {
   try {
     const todo = await Todo.findById(req.params.id);
-    if (!todo) return res.status(404).send("Todo not found");
+    if (!todo) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
     res.json(todo);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error");
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Get todos by status and/or title or all todos
-exports.getFilteredTodos = async (req, res) => {
-  try {
-    const { status, title } = req.query;
-    let query = {};
-    if (status) query.status = status;
-    if (title) query.title = { $regex: title, $options: 'i' };
-
-    const todos = await Todo.find(query);
-    res.json(todos);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error");
-  }
-};
-
-// Create a new todo
 exports.createTodo = async (req, res) => {
   try {
-    const { title, status, tags } = req.body;
-    const todo = new Todo({
-      title,
-      status: status || 'to-do',
-      tags
-    });
-    await todo.save();
+    const todo = await Todo.create(req.body);
     res.status(201).json(todo);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error");
+    res.status(400).json({ error: error.message });
   }
 };
 
-// Update a todo by ID
 exports.updateTodoById = async (req, res) => {
   try {
-    const { title, status, tags } = req.body;
-    const updatedFields = {};
-    if (title) updatedFields.title = title;
-    if (status) updatedFields.status = status;
-    if (tags) updatedFields.tags = tags;
-
-    const todo = await Todo.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
-    if (!todo) return res.status(404).send("Todo not found");
+    const todo = await Todo.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!todo) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
     res.json(todo);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error");
+    res.status(400).json({ error: error.message });
   }
 };
 
-// Delete a todo by ID
 exports.deleteTodoById = async (req, res) => {
   try {
     const todo = await Todo.findByIdAndDelete(req.params.id);
-    if (!todo) return res.status(404).send("Todo not found");
-    res.send("Todo deleted");
+    if (!todo) {
+      return res.status(404).json({ error: 'Todo not found' });
+    }
+    res.json({ message: 'Todo deleted successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error");
+    res.status(500).json({ error: error.message });
   }
 };

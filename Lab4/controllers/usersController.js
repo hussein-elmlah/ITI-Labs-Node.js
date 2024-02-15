@@ -1,63 +1,57 @@
-const User = require('../models/user');
+const User = require('../models/userModel');
 
-// Register a user
+// Controller methods for user CRUD operations
+
 exports.registerUser = async (req, res) => {
   try {
-    const { username, password, firstName, lastName, dob } = req.body;
-    const user = new User({
-      username,
-      password,
-      firstName,
-      lastName,
-      dob
-    });
-    await user.save();
+    const user = await User.create(req.body);
     res.status(201).json(user);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error");
+    res.status(400).json({ error: error.message });
   }
 };
 
-// Get first names of registered users
-exports.getRegisteredUsers = async (req, res) => {
+exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({}, 'firstName');
+    const users = await User.find({}, { firstName: 1 });
     res.json(users);
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error");
+    res.status(500).json({ error: error.message });
   }
 };
 
-// Delete a user by ID
+exports.getUserById = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateUserById = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json(user);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
 exports.deleteUserById = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) return res.status(404).send("User not found");
-    res.send("User deleted");
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    res.json({ message: 'User deleted successfully' });
   } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error");
-  }
-};
-
-// Edit a user by ID
-exports.editUserById = async (req, res) => {
-  try {
-    const { username, password, firstName, lastName, dob } = req.body;
-    const updatedFields = {};
-    if (username) updatedFields.username = username;
-    if (password) updatedFields.password = password;
-    if (firstName) updatedFields.firstName = firstName;
-    if (lastName) updatedFields.lastName = lastName;
-    if (dob) updatedFields.dob = dob;
-
-    const user = await User.findByIdAndUpdate(req.params.id, updatedFields, { new: true });
-    if (!user) return res.status(404).send("User not found");
-    res.json(user);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error");
+    res.status(500).json({ error: error.message });
   }
 };
