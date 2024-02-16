@@ -1,5 +1,6 @@
 // controllers/userController.js
 const User = require("../models/User");
+const Todo = require("../models/Todo");
 const CustomError = require("../lib/customError");
 
 exports.createUser = async (body) => {
@@ -30,4 +31,14 @@ exports.updateUser = async (id, body) => {
     }
   );
   return user;
+};
+
+exports.getTodosByUserId = async (userId) => {
+try {
+  const todos = await Todo.find({ userId })
+  .catch(err => console.log('Failed to find todo: ' + err.message))
+  return todos;
+} catch (error) {
+  throw new CustomError(`Failed to fetch todos: ${error.message}`, error.status);
+}
 };

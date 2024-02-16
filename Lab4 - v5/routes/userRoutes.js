@@ -41,4 +41,14 @@ router.patch("/:id", async (req, res, next) => {
   res.json({ user });
 });
 
+router.get("/:userId/todos", async (req, res, next) => {
+  const [err, todos] = await asyncWrapper(
+    UsersController.getTodosByUserId(req.params.userId)
+  );
+  if (err) {
+    return next(err);
+  }
+  res.json(todos);
+});
+
 module.exports = router;

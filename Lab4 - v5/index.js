@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const todoRoutes = require("./routes/todoRoutes");
 
@@ -20,6 +21,7 @@ mongoose
 
 // Middleware
 app.use(express.json());
+app.use(cors());
 
 // Routes
 app.use("/users", userRoutes);
@@ -28,7 +30,7 @@ app.use("/todos", todoRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack)
-  res.status(500).send(`Something broke! \n ${err.message}`)
+  res.status(err.status).send(`Something broke! \n ${err.message}`)
 })
 
 // Error handling for uncaught exceptions
