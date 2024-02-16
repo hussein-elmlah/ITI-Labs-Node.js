@@ -3,7 +3,8 @@ const User = require("../models/User");
 const CustomError = require("../lib/customError");
 
 exports.createUser = async (body) => {
-  const user = await User.create(body).catch((error) => {
+  const user = await User.create(body).
+  catch((error) => {
     throw new CustomError(`Failed to create user: ${error.message}`, 500);
   });
   return user;

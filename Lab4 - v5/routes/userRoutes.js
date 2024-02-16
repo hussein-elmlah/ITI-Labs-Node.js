@@ -7,6 +7,7 @@ const CustomError = require("../lib/customError");
 
 router.post("/", async (req, res, next) => {
   const [err, user] = await asyncWrapper(UsersController.createUser(req.body));
+  console.log(err,user);
   if (err) {
     return next(new CustomError("Error creating user", 400));
   }
@@ -34,6 +35,7 @@ router.patch("/:id", async (req, res, next) => {
     UsersController.updateUser(req.params.id, req.body)
   );
   if (err) {
+    console.error(err);
     return next(new CustomError("Error updating user", 400));
   }
   res.json({ user });

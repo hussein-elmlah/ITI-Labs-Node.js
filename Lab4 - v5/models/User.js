@@ -52,4 +52,19 @@ userSchema.pre('save', async function (next) {
   }
 });
 
+userSchema.pre('findOneAndUpdate', async function (next) {
+  // Check if the 'password' field exists in the update object
+  if (!this._update.password) {
+    return next();
+  }
+  
+  try {
+    const hashedPassword = await bcrypt.hash(this._update.password, 10);
+    this._update.password = hashedPassword;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 module.exports = mongoose.model('User', userSchema);
