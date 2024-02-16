@@ -1,9 +1,10 @@
 const Todo = require("../models/Todo");
+const mongoose = require("mongoose");
 const CustomError = require("../lib/customError");
 
-exports.createTodo = async ({ title, tags, userId }) => {
+exports.createTodo = async ({ userId, title , status="to-do", tags}) => {
   try {
-    const todo = await Todo.create({ title, tags, userId });
+    const todo = await Todo.create({ userId, title , status, tags})
     return todo;
   } catch (error) {
     throw new CustomError(`Failed to create todo: ${error.message}`, error.status);
@@ -12,6 +13,10 @@ exports.createTodo = async ({ title, tags, userId }) => {
 
 exports.updateTodo = async (id, updates) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new CustomError('Invalid id format', 400); // Bad Request
+    }
+
     const todo = await Todo.findByIdAndUpdate(id, updates, {
       new: true,
       runValidators: true,
@@ -22,25 +27,22 @@ exports.updateTodo = async (id, updates) => {
     }
     return todo;
   } catch (error) {
-    // Check if the error is a CastError
-    if (error.name === "CastError") {
-      // Handle the CastError, such as returning a custom error message
-      throw new CustomError("Invalid ID format", 400); // Bad Request
-    } else {
-      // Throw other errors
       throw new CustomError(`Failed to update todo: ${error.message}`, error.status);
-    }
   }
 };
 
 exports.deleteTodo = async (id) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new CustomError('Invalid id format', 400); // Bad Request
+    }
+    
     const todo = await Todo.findByIdAndDelete(id);
     if (!todo) {
       throw new CustomError("Todo not found", 404);
     }
   } catch (error) {
-    throw new CustomError(`Failed to delete todo: ${error.message}`, error.status);
+      throw new CustomError(`Failed to delete todo: ${error.message}`, error.status);
   }
 };
 

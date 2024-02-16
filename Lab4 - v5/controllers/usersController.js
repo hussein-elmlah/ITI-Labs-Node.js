@@ -1,44 +1,67 @@
-// controllers/userController.js
-const User = require("../models/User");
-const Todo = require("../models/Todo");
-const CustomError = require("../lib/customError");
+const mongoose = require('mongoose');
+const User = require('../models/User');
+const Todo = require('../models/Todo');
+const CustomError = require('../lib/customError');
+const { trimStringValues } = require('../utils/utils');
+
 
 exports.createUser = async (body) => {
-  const user = await User.create(body).
-  catch((error) => {
-    return new CustomError(`Failed to create user: ${error.message}`, 500);
-  });
-  return user;
+  try {
+    // const trimmedBody = trimStringValues(body);
+    const user = await User.create(body);
+    return user;
+  } catch (error) {
+    throw new CustomError(`Failed to create user: ${error.message}`, 500);
+  }
 };
 
 exports.getUsersFirstName = async () => {
-  const users = await User.find({}, "firstName").catch((error) => {
-    return new CustomError(`Failed to get users: ${error.message}`, 500);
-  });
-  return users;
+  try {
+    const users = await User.find({}, 'firstName');
+    return users;
+  } catch (error) {
+    throw new CustomError(`Failed to get users: ${error.message}`, 500);
+  }
 };
 
 exports.deleteUser = async (id) => {
-  await User.findByIdAndDelete(id).catch((error) => {
-    return new CustomError(`Failed to delete user: ${error.message}`, 500);
-  });
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new CustomError('Invalid id format', 400);
+    }
+    const user = await User.findByIdAndDelete(id);
+    if (!user) {
+      throw new CustomError('User not found', 404);
+    }
+  } catch (error) {
+    throw new CustomError(`Failed to delete user: ${error.message}`, error.status || 500);
+  }
 };
 
 exports.updateUser = async (id, body) => {
-  const user = await User.findByIdAndUpdate(id, body, { new: true }).catch(
-    (error) => {
-      return new CustomError(`Failed to update user: ${error.message}`, 500);
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new CustomError('Invalid id format', 400);
     }
-  );
-  return user;
+    // const trimmedBody = trimStringValues(body);
+    const user = await User.findByIdAndUpdate(id, body, { new: true });
+    if (!user) {
+      throw new CustomError('User not found', 404);
+    }
+    return user;
+  } catch (error) {
+    throw new CustomError(`Failed to update user: ${error.message}`, error.status || 500);
+  }
 };
 
 exports.getTodosByUserId = async (userId) => {
-try {
-  const todos = await Todo.find({ userId })
-  .catch(err => console.log('Failed to find todo: ' + err.message))
-  return todos;
-} catch (error) {
-  throw new CustomError(`Failed to fetch todos: ${error.message}`, error.status);
-}
+  try {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new CustomError('Invalid id format', 400);
+    }
+    const todos = await Todo.find({ userId });
+    return todos;
+  } catch (error) {
+    throw new CustomError(`Failed to fetch todos: ${error.message}`, error.status || 500);
+  }
 };
