@@ -14,7 +14,7 @@ exports.updateTodo = async (id, updates) => {
     try {
         const todo = await Todo.findByIdAndUpdate(id, updates, { new: true });
         if (!todo) {
-            throw new CustomError('Todo not found', 404);
+           throw new CustomError('Todo not found', 404);
         }
         return todo;
     } catch (error) {

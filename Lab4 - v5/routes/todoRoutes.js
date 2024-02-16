@@ -20,6 +20,7 @@ router.patch("/:id", async (req, res, next) => {
     TodosController.updateTodo(req.params.id, req.body)
   );
   if (err) {
+    console.error('eroooooooor',err);
     return next(new CustomError("Error updating todo", 400));
   }
   res.json({ todo });

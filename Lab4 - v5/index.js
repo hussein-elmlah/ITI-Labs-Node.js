@@ -28,7 +28,7 @@ app.use("/todos", todoRoutes);
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack)
-  res.status(500).send(`Something broke! (from:Error handling middleware) \n ${err.message}`)
+  res.status(500).send(`Something broke! \n ${err.message}`)
 })
 
 // Error handling for uncaught exceptions
