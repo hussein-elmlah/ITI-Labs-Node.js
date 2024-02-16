@@ -23,7 +23,7 @@ const todoSchema = new mongoose.Schema(
       maxlength: 10,
     },
   },
-  { timestamps: true }
+  { timestamps: true, runValidators: true }
 );
 
 // Hook to trim all input strings before validating
@@ -34,6 +34,34 @@ todoSchema.pre("validate", function (next) {
     }
   }
   next();
+});
+
+// Validate in update
+todoSchema.pre("findOneAndUpdate", async function (next) {
+  try {
+    // Trim string fields in the update object
+    for (const key in this._update) {
+      if (
+        this._update.hasOwnProperty(key) &&
+        typeof this._update[key] === "string"
+      ) {
+        this._update[key] = this._update[key].trim();
+      }
+    }
+    for ( let tag = 0 ; tag < this._update.tags.length ; ++tag ) {
+      this._update.tags[tag] = this._update.tags[tag].trim();
+      if ( this._update.tags[tag] === "" ) {
+        this._update.tags.splice( tag, 1 );
+        tag--;
+      }
+    }
+    // Enable validation for the update operation
+    this.options.runValidators = true;
+
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = mongoose.model("Todo", todoSchema);

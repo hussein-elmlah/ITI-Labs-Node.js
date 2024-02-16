@@ -57,7 +57,7 @@ userSchema.pre("save", async function (next) {
   }
 });
 
-// Validate and Hash password in update
+// Validate in update
 userSchema.pre("findOneAndUpdate", async function (next) {
   try {
     // Trim string fields in the update object
@@ -77,15 +77,14 @@ userSchema.pre("findOneAndUpdate", async function (next) {
     next(error);
   }
 });
+
 userSchema.post("findOneAndUpdate", async function (doc) {
-  // Check if the 'password' field exists in the update object and is a string
-  if (this._update.password && typeof this._update.password === "string") {
-    const hashedPassword = await bcrypt.hash(this._update.password, 10);
-    this._update.password = hashedPassword;
-  }
-  // Mark the 'password' field as modified before saving
-  doc.markModified("password");
   // Save the document to persist the changes
+  if (this._update.$set.password && typeof this._update.$set.password === "string") {
+    // Access the document being updated and mark 'password' field as modified
+    doc.markModified("password");
+  }
+
   await doc.save();
 });
 

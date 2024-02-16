@@ -2,12 +2,9 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const Todo = require('../models/Todo');
 const CustomError = require('../lib/customError');
-const { trimStringValues } = require('../utils/utils');
-
 
 exports.createUser = async (body) => {
   try {
-    // const trimmedBody = trimStringValues(body);
     const user = await User.create(body);
     return user;
   } catch (error) {
@@ -43,7 +40,6 @@ exports.updateUser = async (id, body) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new CustomError('Invalid id format', 400);
     }
-    // const trimmedBody = trimStringValues(body);
     const user = await User.findByIdAndUpdate(id, body, { new: true });
     if (!user) {
       throw new CustomError('User not found', 404);
