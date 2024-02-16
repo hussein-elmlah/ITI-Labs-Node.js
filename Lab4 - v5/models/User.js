@@ -80,12 +80,29 @@ userSchema.pre("findOneAndUpdate", async function (next) {
 
 userSchema.post("findOneAndUpdate", async function (doc) {
   // Save the document to persist the changes
-  if (this._update.$set.password && typeof this._update.$set.password === "string") {
+  if (
+    this._update.$set.password &&
+    typeof this._update.$set.password === "string"
+  ) {
     // Access the document being updated and mark 'password' field as modified
     doc.markModified("password");
   }
 
   await doc.save();
+});
+
+// Define a toJSON method to control the JSON output when converting Mongoose documents to JSON
+userSchema.set("toJSON", {
+  // The transform function allows you to modify the JSON representation of the document
+  transform: function (doc, ret) {
+    // Rename the '_id' field to 'id' for better readability
+    ret.id = ret._id;
+    // Remove the '_id' and '__v' fields from the JSON output
+    delete ret._id;
+    delete ret.__v;
+    // Remove the 'password' field from the JSON output for security reasons
+    delete ret.password;
+  },
 });
 
 module.exports = mongoose.model("User", userSchema);
