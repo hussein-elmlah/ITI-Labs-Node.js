@@ -5,7 +5,6 @@ const asyncWrapper = require("../lib/async-wrapper");
 
 router.post("/", async (req, res, next) => {
   const [err, user] = await asyncWrapper(UsersController.createUser(req.body));
-  console.log(err,user);
   if (err) {
     return next(err);
   }

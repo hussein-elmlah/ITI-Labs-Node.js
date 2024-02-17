@@ -33,13 +33,13 @@ app.use("*", (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  // console.error(err.stack);
   res.status(err.status).send(`Something broke! \n ${err.message}`);
 });
 
 // Error handling for uncaught exceptions
 process.on("uncaughtException", function (err) {
-  console.log("Uncaught exception occurred:", err);
+  console.log("Uncaught exception occurred:\n", err);
 });
 
 // Start server
