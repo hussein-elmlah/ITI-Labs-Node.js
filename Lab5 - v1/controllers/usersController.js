@@ -3,10 +3,8 @@ const User = require('../models/User');
 const Todo = require('../models/Todo');
 const CustomError = require('../lib/customError');
 const jwt = require('jsonwebtoken');
-require('dotenv').config();
-
-// jwt secret
-const {JWT_SECRET = 'test' } = process.env ;
+// Require configuration variables from the config file
+const { JWT_SECRET } = require('../config');
 
 exports.createUser = async (data) => {
   try {

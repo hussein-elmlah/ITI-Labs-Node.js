@@ -3,12 +3,10 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const userRoutes = require("./routes/userRoutes");
 const todoRoutes = require("./routes/todoRoutes");
-require('dotenv').config();
-
+// Require configuration variables from the config file
+const { PORT, MONGODB_URI } = require('./config');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb://localhost:27017/todosDB";
 
 // Connect to MongoDB database
 mongoose
