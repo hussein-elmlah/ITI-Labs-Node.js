@@ -5,7 +5,7 @@ const TodosController = require("../controllers/todosController");
 const asyncWrapper = require("../lib/async-wrapper");
 const authentication = require("../middlewares/authentication");
 
-router.use(authentication);
+router.use(authenticateUser);
 
 router.post("/", async (req, res, next) => {
   const [err, todo] = await asyncWrapper(

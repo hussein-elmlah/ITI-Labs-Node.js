@@ -6,7 +6,7 @@ const { JWT_SECRET } = require('../config');
 // Promisify jwt.verify function
 const verifyAsync = util.promisify(jwt.verify);
 
-const authentication = async (req, res, next) => {
+const authenticateUser = async (req, res, next) => {
   try {
     const { authorization: token } = req.headers;
 
@@ -35,10 +35,10 @@ const authentication = async (req, res, next) => {
     if (error.name === 'JsonWebTokenError') {
         return res.status(401).json({ error: "Invalid token" });
     } else {
-      console.error("Authentication middleware error:", error);
+      console.error("authenticateUser middleware error:", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   }
 };
 
-module.exports = authentication;
+module.exports = authenticateUser;
