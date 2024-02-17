@@ -2,13 +2,17 @@ const express = require("express");
 const router = express.Router();
 const UsersController = require("../controllers/usersController");
 const asyncWrapper = require("../lib/async-wrapper");
+const generateToken = require('../utils/jwtUtils');
+
 
 router.post("/", async (req, res, next) => {
   const [err, user] = await asyncWrapper(UsersController.createUser(req.body));
   if (err) {
     return next(err);
   }
-  res.status(201).json(user);
+  const token = generateToken(user);
+
+  res.status(201).json({ user, token });
 });
 
 router.post("/login", async (req, res, next) => {

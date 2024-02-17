@@ -2,9 +2,8 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const Todo = require('../models/Todo');
 const CustomError = require('../lib/customError');
-const jwt = require('jsonwebtoken');
-// Require configuration variables from the config file
-const { JWT_SECRET } = require('../config');
+const generateToken = require('../utils/jwtUtils');
+
 
 exports.createUser = async (data) => {
   try {
@@ -25,8 +24,7 @@ exports.loginUser = async ({ username, password }) => {
     if (!valid) {
       throw new CustomError('UN_Authenticated', 401);
     }
-    const token = jwt.sign({ username, id: user._id}, JWT_SECRET, {expiresIn: '7d'});
-
+    const token = generateToken(user);
     return token;
   } catch (error) {
     throw new CustomError(`Failed to login user: ${error.message}`, error.status || 500);
