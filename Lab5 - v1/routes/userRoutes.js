@@ -12,6 +12,17 @@ router.post("/", async (req, res, next) => {
   res.status(201).json(user);
 });
 
+router.post("/login", async (req, res, next) => {
+  const {body: {username, password}} = req;
+  const [err, user] = await asyncWrapper(
+    UsersController.loginUser({username, password})
+  );
+  if (err) {
+    return next(err);
+  }
+  res.json(user);
+});
+
 router.get("/", async (req, res, next) => {
   const [err, users] = await asyncWrapper(UsersController.getUsersFirstName());
   if (err) {

@@ -33,6 +33,20 @@ const userSchema = new mongoose.Schema(
   { timestamps: true, runValidators: true }
 );
 
+// Define a toJSON method to control the JSON output when converting Mongoose documents to JSON
+userSchema.set("toJSON", {
+  // The transform function allows you to modify the JSON representation of the document
+  transform: function (doc, ret) {
+    // Rename the '_id' field to 'id' for better readability
+    ret.id = ret._id;
+    // Remove the '_id' and '__v' fields from the JSON output
+    delete ret._id;
+    delete ret.__v;
+    // Remove the 'password' field from the JSON output for security reasons
+    delete ret.password;
+  },
+});
+
 // Hook to trim all input strings before validating
 userSchema.pre("validate", function (next) {
   for (const key in this._doc) {
@@ -91,18 +105,8 @@ userSchema.post("findOneAndUpdate", async function (doc) {
   await doc.save();
 });
 
-// Define a toJSON method to control the JSON output when converting Mongoose documents to JSON
-userSchema.set("toJSON", {
-  // The transform function allows you to modify the JSON representation of the document
-  transform: function (doc, ret) {
-    // Rename the '_id' field to 'id' for better readability
-    ret.id = ret._id;
-    // Remove the '_id' and '__v' fields from the JSON output
-    delete ret._id;
-    delete ret.__v;
-    // Remove the 'password' field from the JSON output for security reasons
-    delete ret.password;
-  },
-});
+userSchema.methods.verifyPassword = function verifyPassword (password) {
+  return bcrypt.compareSync(password, this.password);
+};
 
 module.exports = mongoose.model("User", userSchema);
