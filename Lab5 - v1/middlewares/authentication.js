@@ -1,10 +1,14 @@
 const User = require('../models/User');
 const jwt = require("jsonwebtoken");
+const util = require("util");
 const { JWT_SECRET } = require('../config');
+
+// Promisify jwt.verify function
+const verifyAsync = util.promisify(jwt.verify);
 
 const authentication = async (req, res, next) => {
   try {
-    const { authorization : token } = req.headers;
+    const { authorization: token } = req.headers;
 
     // Check if authorization header is present
     if (!token) {
@@ -12,35 +16,29 @@ const authentication = async (req, res, next) => {
     }
 
     // Verify token
-    jwt.verify(token, JWT_SECRET, async (err, decodedToken) => {
-      // Handle verification errors
-      if (err) {
-        return res.status(401).json({ error: "Invalid token" });
-      }
+    const decodedToken = await verifyAsync(token, JWT_SECRET);
 
-      try {
-        // Find user by decoded token's ID
-        const user = await User.findById(decodedToken.id).exec();
+    // Find user by decoded token's ID
+    const user = await User.findById(decodedToken.id).exec();
 
-        // Handle user not found
-        if (!user) {
-          return res.status(401).json({ error: "User not found" });
-        }
+    // Handle user not found
+    if (!user) {
+      return res.status(401).json({ error: "User not found" });
+    }
 
-        // Attach user object to request
-        req.user = user;
-        next(); // Call the next middleware function
-      } catch (error) {
-        // Handle database error
-        console.error("Error fetching user:", error);
-        return res.status(500).json({ error: "Internal server error" });
-      }
-    });
+    // Attach user object to request
+    req.user = user;
+    next(); // Call the next middleware function
+
   } catch (error) {
-    // Handle other errors
-    console.error("Authentication middleware error:", error);
-    return res.status(500).json({ error: "Internal server error" });
+    // Handle errors
+    if (error.name === 'JsonWebTokenError') {
+        return res.status(401).json({ error: "Invalid token" });
+    } else {
+      console.error("Authentication middleware error:", error);
+      return res.status(500).json({ error: "Internal server error" });
+    }
   }
-}
+};
 
 module.exports = authentication;
