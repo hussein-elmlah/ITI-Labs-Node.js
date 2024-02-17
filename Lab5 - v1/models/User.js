@@ -29,6 +29,11 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 8,
     },
+    role: {
+      type: String,
+      enum: ["admin", "user"],
+      default: "user",
+    },
   },
   { timestamps: true, runValidators: true }
 );
@@ -92,17 +97,22 @@ userSchema.pre("findOneAndUpdate", async function (next) {
   }
 });
 
-userSchema.post("findOneAndUpdate", async function (doc) {
-  // Save the document to persist the changes
-  if (
-    this._update.$set.password &&
-    typeof this._update.$set.password === "string"
-  ) {
-    // Access the document being updated and mark 'password' field as modified
-    doc.markModified("password");
+userSchema.post("findOneAndUpdate", async function (doc, next) {
+  try {
+    // Check if doc exists
+    if (!doc) {
+      // Handle the case where no document is found
+      return next(new Error("No document found to update."));
+    }
+    // Save the document to persist the changes
+    if (this._update.$set.password && typeof this._update.$set.password === "string") {
+      // Access the document being updated and mark 'password' field as modified
+      doc.markModified("password");
+    }
+    await doc.save();
+  } catch (error) {
+    next(error);
   }
-
-  await doc.save();
 });
 
 userSchema.methods.verifyPassword = function verifyPassword (password) {

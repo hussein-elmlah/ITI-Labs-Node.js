@@ -4,12 +4,12 @@ const router = express.Router();
 const TodosController = require("../controllers/todosController");
 const asyncWrapper = require("../lib/async-wrapper");
 const {authenticateUser} = require("../middlewares/authentication");
+const { checkRole, authorizeTodoAccess } = require('../middlewares/authorization');
 
-router.use(authenticateUser);
-
-router.post("/", async (req, res, next) => {
+router.post("/", authenticateUser, async (req, res, next) => {
+  req.body.userId = req.user._id;
   const [err, todo] = await asyncWrapper(
-    TodosController.createTodo(req.body, req.userId)
+    TodosController.createTodo(req.body)
   );
   if (err) {
     return next(err);
@@ -17,7 +17,7 @@ router.post("/", async (req, res, next) => {
   res.status(201).json(todo);
 });
 
-router.patch("/:id", async (req, res, next) => {
+router.patch("/:id", authenticateUser, authorizeTodoAccess, async (req, res, next) => {
   const [err, todo] = await asyncWrapper(
     TodosController.updateTodo(req.params.id, req.body)
   );
@@ -27,7 +27,7 @@ router.patch("/:id", async (req, res, next) => {
   res.json({ todo });
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", authenticateUser, authorizeTodoAccess, async (req, res, next) => {
   const [err] = await asyncWrapper(TodosController.deleteTodo(req.params.id));
   if (err) {
     return next(err);
@@ -35,7 +35,7 @@ router.delete("/:id", async (req, res, next) => {
   res.sendStatus(204);
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/", authenticateUser, checkRole('admin'), async (req, res, next) => {
   const { limit, skip, status} = req.query;
   const [err, todos] = await asyncWrapper(
     TodosController.getTodosWithFilters(limit, skip, status)

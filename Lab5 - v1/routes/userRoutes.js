@@ -3,6 +3,8 @@ const router = express.Router();
 const UsersController = require("../controllers/usersController");
 const asyncWrapper = require("../lib/async-wrapper");
 const generateToken = require('../utils/jwtUtils');
+const {authenticateUser} = require("../middlewares/authentication");
+const { checkRole, authorizeUser } = require('../middlewares/authorization');
 
 
 router.post("/", async (req, res, next) => {
@@ -26,7 +28,7 @@ router.post("/login", async (req, res, next) => {
   res.json(user);
 });
 
-router.get("/", async (req, res, next) => {
+router.get("/", authenticateUser, checkRole('admin'), async (req, res, next) => {
   const [err, users] = await asyncWrapper(UsersController.getUsersFirstName());
   if (err) {
     return next(err);
@@ -34,7 +36,7 @@ router.get("/", async (req, res, next) => {
   res.json(users);
 });
 
-router.delete("/:id", async (req, res, next) => {
+router.delete("/:id", authenticateUser, checkRole('admin'), async (req, res, next) => {
   const [err] = await asyncWrapper(UsersController.deleteUser(req.params.id));
   if (err) {
     return next(err);
@@ -52,7 +54,7 @@ router.patch("/:id", async (req, res, next) => {
   res.json({ user });
 });
 
-router.get("/:userId/todos", async (req, res, next) => {
+router.get("/:userId/todos", authenticateUser, authorizeUser, async (req, res, next) => {
   const [err, todos] = await asyncWrapper(
     UsersController.getTodosByUserId(req.params.userId)
   );

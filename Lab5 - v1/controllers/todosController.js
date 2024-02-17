@@ -11,13 +11,13 @@ exports.createTodo = async ({ userId, title , status="to-do", tags}) => {
   }
 };
 
-exports.updateTodo = async (id, updates) => {
+exports.updateTodo = async (id, {title , status, tags}) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new CustomError('Invalid id format', 400); // Bad Request
     }
 
-    const todo = await Todo.findByIdAndUpdate(id, updates, {
+    const todo = await Todo.findByIdAndUpdate(id, {title , status, tags}, {
       new: true,
       runValidators: true,
     });
