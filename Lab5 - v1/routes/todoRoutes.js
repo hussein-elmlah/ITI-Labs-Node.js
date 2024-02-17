@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const TodosController = require("../controllers/todosController");
 const asyncWrapper = require("../lib/async-wrapper");
-const authentication = require("../middlewares/authentication");
+const {authenticateUser} = require("../middlewares/authentication");
 
 router.use(authenticateUser);
 
