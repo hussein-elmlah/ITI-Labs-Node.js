@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
+const CustomError = require("../lib/customError");
 
 const userSchema = new mongoose.Schema(
   {
@@ -101,8 +102,8 @@ userSchema.post("findOneAndUpdate", async function (doc, next) {
   try {
     // Check if doc exists
     if (!doc) {
-      // Handle the case where no document is found
-      return next(new Error("No document found to update."));
+      // Handle the case where no user is found
+      throw new CustomError("user not found", 404);
     }
     // Save the document to persist the changes
     if (this._update.$set.password && typeof this._update.$set.password === "string") {

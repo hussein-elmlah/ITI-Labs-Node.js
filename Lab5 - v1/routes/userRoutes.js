@@ -4,7 +4,7 @@ const UsersController = require("../controllers/usersController");
 const asyncWrapper = require("../lib/async-wrapper");
 const generateToken = require('../utils/jwtUtils');
 const {authenticateUser} = require("../middlewares/authentication");
-const { checkRole, authorizeUser } = require('../middlewares/authorization');
+const { authorizeUser, checkRole, authorizeUserOrAdmin } = require('../middlewares/authorization');
 
 
 router.post("/", async (req, res, next) => {
@@ -36,7 +36,7 @@ router.get("/", authenticateUser, checkRole('admin'), async (req, res, next) => 
   res.json(users);
 });
 
-router.delete("/:id", authenticateUser, checkRole('admin'), async (req, res, next) => {
+router.delete("/:id", authenticateUser, authorizeUserOrAdmin, async (req, res, next) => {
   const [err] = await asyncWrapper(UsersController.deleteUser(req.params.id));
   if (err) {
     return next(err);
@@ -44,7 +44,7 @@ router.delete("/:id", authenticateUser, checkRole('admin'), async (req, res, nex
   res.sendStatus(204);
 });
 
-router.patch("/:id", async (req, res, next) => {
+router.patch("/:id", authenticateUser, authorizeUserOrAdmin, async (req, res, next) => {
   const [err, user] = await asyncWrapper(
     UsersController.updateUser(req.params.id, req.body)
   );

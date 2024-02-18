@@ -1,31 +1,6 @@
 const CustomError = require("../lib/customError");
 const Todo = require("../models/Todo");
 
-const checkRole = (role) => {
-  return (req, res, next) => {
-    if (req.user && req.user.role === role) {
-      next();
-    } else {
-      next(new CustomError('Forbidden', 403));
-    }
-  };
-};
-
-const authorizeUser = async (req, res, next) => {
-  const userId = req.user.userId;
-  const requestedUserId = req.params.userId;
-
-  if (!userId ||!requestedUserId) {
-    return next(new CustomError("Unauthorized access", 403));
-  }
-
-  if (userId !== requestedUserId) {
-    return next(new CustomError("Unauthorized access", 403));
-  }
-
-  next();
-};
-
 const authorizeTodoAccess = async (req, res, next) => {
   const userId = req.user.id;
   const todoId = req.params.id;
@@ -46,4 +21,38 @@ const authorizeTodoAccess = async (req, res, next) => {
   next();
 };
 
-module.exports = { checkRole, authorizeUser, authorizeTodoAccess };
+const authorizeUser = async (req, res, next) => {
+  const userId = req.user.id;
+  const requestedUserId = req.params.userId;
+  if (!userId ||!requestedUserId) {
+    return next(new CustomError("Unauthorized access", 403));
+  }
+
+  if (userId !== requestedUserId) {
+    return next(new CustomError("Unauthorized access", 403));
+  }
+
+  next();
+};
+
+const checkRole = (role) => {
+  return (req, res, next) => {
+    if (req.user && req.user.role === role) {
+      next();
+    } else {
+      next(new CustomError('Forbidden', 403));
+    }
+  };
+};
+
+const authorizeUserOrAdmin = async (req, res, next) => {
+  const userId = req.user.id;
+  const requestedUserId = req.params.id;
+  if (userId !== requestedUserId && req.user.role !== 'admin') {
+    return next(new CustomError("Unauthorized access", 403));
+  }
+
+  next();
+};
+
+module.exports = { authorizeTodoAccess, authorizeUser, checkRole, authorizeUserOrAdmin };

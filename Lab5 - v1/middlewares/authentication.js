@@ -23,7 +23,7 @@ const authenticateUser = async (req, res, next) => {
 
     // Handle user not found
     if (!user) {
-      return res.status(401).json({ error: "User not found" });
+      return res.status(401).json({ error: "Token's user not found" });
     }
 
     // Attach user object to request
@@ -35,7 +35,6 @@ const authenticateUser = async (req, res, next) => {
     if (error.name === 'JsonWebTokenError') {
         return res.status(401).json({ error: "Invalid token" });
     } else {
-      console.error("authenticateUser middleware error:", error);
       return res.status(500).json({ error: "Internal server error" });
     }
   }
