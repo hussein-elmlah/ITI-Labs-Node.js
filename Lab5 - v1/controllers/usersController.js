@@ -4,10 +4,13 @@ const Todo = require('../models/Todo');
 const CustomError = require('../lib/customError');
 const generateToken = require('../utils/jwtUtils');
 
-
-exports.createUser = async ({username, firstName, lastName, dob, password}) => {
+exports.createUser = async ({
+  username, firstName, lastName, dob, password,
+}) => {
   try {
-    const user = await User.create({username, firstName, lastName, dob, password});
+    const user = await User.create({
+      username, firstName, lastName, dob, password,
+    });
     return user;
   } catch (error) {
     throw new CustomError(`Failed to create user: ${error.message}`, 500);
@@ -54,12 +57,20 @@ exports.deleteUser = async (id) => {
   }
 };
 
-exports.updateUser = async (id, {username, firstName, lastName, dob, password}) => {
+exports.updateUser = async (id, {
+  username, firstName, lastName, dob, password,
+}) => {
   try {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new CustomError('Invalid id format', 400);
     }
-    const user = await User.findByIdAndUpdate(id, {username, firstName, lastName, dob, password}, { new: true });
+    const user = await User.findByIdAndUpdate(
+      id,
+      {
+        username, firstName, lastName, dob, password,
+      },
+      { new: true },
+    );
     if (!user) {
       throw new CustomError('User not found', 404);
     }

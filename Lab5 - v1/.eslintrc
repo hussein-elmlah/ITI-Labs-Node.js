@@ -1,5 +1,6 @@
-// .eslintrc.js
 {
-  "extends": "airbnb-base"
+  "extends": "airbnb-base",
+  "rules": {
+    "linebreak-style": "off"
+  }
 }
- 

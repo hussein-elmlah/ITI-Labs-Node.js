@@ -38,7 +38,6 @@ app.use((err, req, res, next) => {
   if (err instanceof CustomError || err.status) {
     res.status(err.status || 500).json({ error: err.message });
   } else {
-    // For other errors, respond with a generic error message and status code 500
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
